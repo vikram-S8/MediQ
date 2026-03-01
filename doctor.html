@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Dashboard</title>
+    <style>
+        :root { --primary: #2563eb; --admin: #8b5cf6; --lab: #059669; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: var(--bg); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .card h3 { margin-top: 0; color: #1f2937; }
+        .details { margin: 15px 0; color: #4b5563; font-size: 0.9em; }
+        
+        .actions { display: flex; gap: 10px; margin-top: 15px; }
+        button { cursor: pointer; border: none; padding: 8px 12px; border-radius: 6px; color: white; font-weight: 600; flex: 1; }
+        .btn-admin { background: var(--admin); }
+        .btn-lab { background: var(--lab); }
+        .logout-btn { background: #ef4444; padding: 8px 16px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>Doctor Dashboard</h2>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div id="doctor-container" class="grid">
+        </div>
+
+    <script>
+        const API_URL = "http://localhost:5000/api/requests";
+        const token = localStorage.getItem("token");
+
+        // Auth Check
+        if (!token || localStorage.getItem("role") !== "Doctor") {
+            window.location.href = "index.html";
+        }
+
+        async function loadDashboard() {
+            try {
+                const res = await fetch(`${API_URL}/role/Doctor`, {
+                    headers: { "Authorization": token }
+                });
+                const data = await res.json();
+                const container = document.getElementById("doctor-container");
+
+                if (data.length === 0) {
+                    container.innerHTML = "<p>No pending requests.</p>";
+                    return;
+                }
+
+                container.innerHTML = data.map(r => `
+                    <div class="card">
+                        <h3>${r.patientName}</h3>
+                        <div class="details">
+                            <p><strong>Type:</strong> ${r.type}</p>
+                            <p><strong>Priority:</strong> ${r.priority}</p>
+                            <p><strong>Request:</strong> ${r.description || 'N/A'}</p>
+                        </div>
+                        <div class="actions">
+                            <button class="btn-admin" onclick="forwardRequest('${r._id}', 'Admin')">To Admin</button>
+                            <button class="btn-lab" onclick="forwardRequest('${r._id}', 'Lab')">To Lab</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error("Fetch error:", err);
+            }
+        }
+
+        async function forwardRequest(id, destination) {
+            // Assuming your backend expects a PUT request with a target destination
+            try {
+                const response = await fetch(`${API_URL}/forward/${id}`, {
+                    method: "PUT",
+                    headers: { 
+                        "Authorization": token,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ destination })
+                });
+
+                if (response.ok) {
+                    alert(`Request sent to ${destination} successfully.`);
+                    loadDashboard(); // Refresh list
+                } else {
+                    alert("Failed to forward request.");
+                }
+            } catch (err) {
+                console.error("Action error:", err);
+            }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = "index.html";
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>

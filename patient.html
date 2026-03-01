@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Patient Dashboard</title>
+<style>
+  body { 
+    font-family: Arial, sans-serif; 
+    background: #f4f7f6; 
+    margin: 0; 
+    padding: 20px; 
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+  }
+  .container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .card {
+    background: white; 
+    padding: 20px; 
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    flex: 1;
+    min-width: 300px;
+  }
+  input, select, textarea { 
+    width: 100%; 
+    padding: 10px; 
+    margin: 8px 0 15px 0; 
+    border: 1px solid #ccc; 
+    border-radius: 5px;
+  }
+  button { 
+    padding: 10px; 
+    background: #007bff; 
+    color: white; 
+    border: none; 
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .logout-btn { background: red; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 10px; border-bottom: 1px solid #ddd; }
+
+  .status { padding: 5px 10px; border-radius: 10px; }
+  .pending { background: #fff3cd; }
+  .inprogress { background: #cce5ff; }
+  .completed { background: #d4edda; }
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <h2>Patient Dashboard</h2>
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<div class="container">
+
+  <!-- CREATE REQUEST -->
+  <div class="card">
+    <h3>Create Request</h3>
+
+    <form onsubmit="createRequest(event)">
+      <input id="name" placeholder="Patient Name" required>
+
+      <textarea id="description" placeholder="Description (optional)" rows="3"></textarea>
+
+      <select id="type" required>
+        <option value="">Select Type</option>
+        <option value="Consultation">Consultation</option>
+        <option value="Lab Test">Lab Test</option>
+        <option value="Surgery">Surgery</option>
+      </select>
+
+      <select id="priority">
+        <option value="Normal">Normal</option>
+        <option value="Emergency">Emergency</option>
+      </select>
+
+      <button type="submit">Submit</button>
+    </form>
+
+    <p id="msg"></p>
+  </div>
+
+  <!-- REQUEST TABLE -->
+  <div class="card" style="flex:2;">
+    <h3>My Requests</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Description</th>
+          <th>Type</th>
+          <th>Status</th>
+          <th>Current Stage</th>
+        </tr>
+      </thead>
+      <tbody id="table"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const token = localStorage.getItem("token");
+const role = localStorage.getItem("role");
+const msg = document.getElementById("msg");
+const table = document.getElementById("table");
+
+// 🔐 LOGIN CHECK
+if (!token || role !== "Patient") {
+  alert("Login first");
+  location = "index.html";
+}
+
+// 🚀 CREATE REQUEST
+async function createRequest(e){
+  e.preventDefault();
+
+  try {
+    const res = await fetch("http://localhost:5000/api/requests/create",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({
+        patientName: document.getElementById("name").value,
+        description: document.getElementById("description").value,
+        type: document.getElementById("type").value,
+        priority: document.getElementById("priority").value
+      })
+    });
+
+    if(res.ok){
+      msg.innerText = "✅ Request Created";
+      loadRequests();
+    } else {
+      msg.innerText = "❌ Error creating request";
+    }
+
+  } catch(err){
+    console.error(err);
+    msg.innerText = "❌ Server error";
+  }
+}
+
+// 📥 LOAD REQUESTS WITH TRACKING
+async function loadRequests(){
+  try {
+    const res = await fetch("http://localhost:5000/api/requests/my",{
+      headers:{ Authorization: "Bearer " + token }
+    });
+
+    const data = await res.json();
+
+    table.innerHTML = data.map(r=>{
+
+      return `
+        <tr>
+          <td>${r._id.substring(0,5)}</td>
+          <td>${r.description || "-"}</td>
+          <td>${r.type}</td>
+
+          <td>
+            <strong>${r.status}</strong><br>
+            <small>${r.currentStage}</small>
+          </td>
+
+          <td>
+            <!-- 🔥 PROGRESS BAR -->
+            <div style="width:100%; background:#eee; border-radius:6px;">
+              <div style="
+                width:${r.progress}%;
+                background:#28a745;
+                color:white;
+                padding:4px;
+                border-radius:6px;
+                text-align:center;
+                font-size:12px;
+              ">
+                ${r.progress}%
+              </div>
+            </div>
+
+            <!-- 🔥 WORKFLOW TRACKING -->
+            <div style="margin-top:8px; font-size:12px;">
+              ${r.workflow.map((stage, index) => {
+                if (index < r.stageIndex) {
+                  return `<div>✔ ${stage}</div>`;
+                } 
+                else if (index === r.stageIndex) {
+                  return `<div style="color:#007bff;">➡ ${stage}</div>`;
+                } 
+                else {
+                  return `<div style="color:#aaa;">⬜ ${stage}</div>`;
+                }
+              }).join("")}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+  } catch(err){
+    console.error(err);
+  }
+}
+
+// 🔄 AUTO LOAD
+loadRequests();
+
+// 🚪 LOGOUT
+function logout(){
+  localStorage.clear();
+  location = "index.html";
+}
+</script>
+
+</body>
+</html>
