@@ -1,69 +1,148 @@
-🏥 MediQ – Inter-Department Workflow Automation System
+MediFlow
 
-MediQ is a backend-driven workflow automation system designed to manage and track patient requests across multiple hospital departments in a structured, transparent, and efficient way.
+Inter-Department Workflow Automation System
 
-It replaces manual coordination with an automated workflow engine, improving communication, reducing delays, and enhancing patient care.
+📌 About the Project
 
-📌 Problem Statement
+MediFlow is a simple backend-based system that helps hospitals manage patient requests across different departments.
 
-Traditional hospital systems suffer from:
+In many hospitals, requests like consultations, lab tests, or surgeries are handled manually, which leads to delays and confusion. This project solves that by creating a structured workflow where each request automatically moves from one department to another.
 
-❌ Manual request handling
+⚙️ How This Project Works
 
-❌ No real-time tracking
+A patient creates a request
 
-❌ Poor inter-department coordination
+The request goes to Doctor
 
-❌ Lack of transparency for patients
+Then moves to Admin → Billing → Operation Theatre
 
-❌ Delays in processing
+Each department processes and forwards it
 
-💡 Solution
+Finally, the request is completed
 
-MediQ introduces a workflow-based system that:
+Everything is tracked in the system.
 
-Automates request movement across departments
+🛠️ Setup Instructions (Important)
+1. Extract the Project
 
-Tracks status and current stage
+Download the ZIP file
 
-Provides real-time progress visibility
+Extract it to a folder like:
 
-Ensures accountability at every step
+C:/MediFlow
 
-🔄 Workflow
 
-Each request follows a predefined path:
+<img width="495" height="685" alt="Screenshot 2026-03-03 192604" src="https://github.com/user-attachments/assets/e972f359-d275-4d51-87af-04caef877e2c" />
 
+
+2. Open Project in Terminal
+
+Go to the folder:
+
+cd C:/MediFlow
+3. Install Dependencies
+
+Run:
+
+npm install
+4. Setup Database (MongoDB Compass)
+
+Open MongoDB Compass
+
+Create a new local database (example: mediflow)
+
+Copy your MongoDB URI
+
+Example:
+
+mongodb://127.0.0.1:27017/mediflow
+5. Configure Environment File
+
+Open .env file and update:
+
+MONGO_URI=your_mongodb_uri_here
+JWT_SECRET=secretkey
+6. Start the Server
+
+Run:
+
+npm run dev
+
+You should see:
+
+
+<img width="712" height="720" alt="image" src="https://github.com/user-attachments/assets/c84be394-6042-4dcc-88cb-d92a8bb7864f" />
+
+Server running
+
+DB Connected
+
+👤 Create Users (Using Postman)
+
+Open Postman and create users.
+
+Register User
+POST http://localhost:5000/api/auth/register
+Body (JSON):
+{
+  "name": "Doctor1",
+  "email": "doc@gmail.com",
+  "password": "123",
+  "role": "Doctor"
+}
+
+👉 Create users for:
+
+Patient
+
+Doctor
+
+Admin
+
+Billing
+
+OT
+
+🔐 Login
+POST http://localhost:5000/api/auth/login
+
+Use registered email & password.
+
+You will get a token.
+
+🌐 Run Frontend
+
+Open the project folder
+
+Open:
+
+index.html
+
+
+<img width="1898" height="898" alt="Screenshot 2026-03-03 193013" src="https://github.com/user-attachments/assets/e16d6d5f-bc7e-4736-8b41-691f0559d746" />
+
+
+
+Login using credentials
+
+Based on role, dashboard will open:
+
+Dashboards:
+
+
+Patient → Create request
+
+Doctor → Approve
+
+Admin → Verify
+
+Billing → Process
+
+OT → Complete
+
+🔁 Workflow
 Patient → Doctor → Admin → Billing → OT → Completed
-✨ Features
-🔹 Core Features
-
-Patient request creation
-
-Automated workflow routing
-
-Role-based dashboards
-
-JWT-based authentication
-
-Status & stage tracking
-
-Progress tracking (%)
-
-🔹 Advanced Features
-
-Dynamic workflow engine
-
-Stage-wise request movement
-
-Department-based filtering
-
-Visual tracking (✔ ➡ ⬜ stages)
-
-Secure API architecture
-
-🛠️ Technology Stack
-🔹 Backend
+📦 Tech Used
 
 Node.js
 
@@ -71,169 +150,35 @@ Express.js
 
 MongoDB
 
-Mongoose
+HTML, CSS, JavaScript
 
 JWT Authentication
 
-🔹 Frontend
+📈 Features
 
-HTML5
+Role-based dashboards
 
-CSS (basic styling)
+Request tracking
 
-JavaScript (Vanilla JS for API integration)
+Workflow automation
 
-🧱 System Architecture
-Frontend (Dashboard UI)
-        ↓
-Express API Server
-        ↓
-Workflow Engine Logic
-        ↓
-MongoDB Database
-🔗 API Endpoints
-🔐 Authentication
+Secure login system
 
-POST /api/auth/register – Register user
+Simple and scalable
 
-POST /api/auth/login – Login & receive token
+⚠️ Notes
 
-📌 Requests
+Make sure MongoDB is running
 
-POST /api/requests/create – Create request
+Always start backend before frontend
 
-GET /api/requests/my – Get patient requests
+Token is required for API requests
 
-GET /api/requests/role/:role – Role-based requests
+📞 Support
 
-PUT /api/requests/forward/:id – Forward request
+If you face any issues or have questions, feel free to contact.
+chatgpt.com
 
-PUT /api/requests/next/:id – Move to next stage
+🚀 Final Note
 
-PUT /api/requests/schedule/:id – Schedule operation
-
-👥 Role-Based Access
-👤 Patient
-
-Create requests
-
-Track status and progress
-
-👨‍⚕️ Doctor
-
-Review requests
-
-Forward to Admin/Lab
-
-🧑‍💼 Admin
-
-Verify requests
-
-Approve workflow progression
-
-💰 Billing
-
-Process financial details
-
-Generate final report
-
-🏥 OT (Operation Theatre)
-
-Schedule operations
-
-Mark completion
-
-🗄️ Database Design
-
-Each request contains:
-
-Patient details
-
-Request type & priority
-
-Workflow stages
-
-Current stage
-
-Status
-
-Stage index
-
-Created user reference
-
-Scheduled time
-
-🚀 Getting Started
-🔧 Prerequisites
-
-Node.js installed
-
-MongoDB running
-
-📥 Installation
-git clone https://github.com/your-username/mediq.git
-cd mediq
-npm install
-▶️ Run Server
-node server.js
-🌐 Open Frontend
-
-Open HTML files manually in browser:
-
-frontend/index.html
-🔐 Authentication
-
-All protected routes require:
-
-Authorization: Bearer <token>
-📈 Future Enhancements
-
-🔔 Real-time notifications (Socket.io)
-
-📊 Analytics dashboard
-
-🤖 AI-based bottleneck detection
-
-📱 Mobile app
-
-📄 PDF report generation
-
-🎯 Key Advantages
-
-✅ Reduces manual workload
-
-✅ Improves transparency
-
-✅ Faster request processing
-
-✅ Better coordination
-
-✅ Scalable architecture
-
-📌 Conclusion
-
-MediQ transforms hospital operations into a smart, automated workflow system.
-
-It improves efficiency, transparency, and patient experience through structured request management and real-time tracking.
-
-👨‍💻 Author
-
-Vikram S
-Backend & System Developer
-
-
-
-<img width="373" height="858" alt="Screenshot 2026-03-01 094228" src="https://github.com/user-attachments/assets/9c943182-a90e-4f43-934a-816b8d812440" />
-
-
-<img width="333" height="250" alt="Screenshot 2026-03-01 094243" src="https://github.com/user-attachments/assets/84c8df5b-fd95-4153-af04-889429ccda64" />
-
-
-<img width="1920" height="1080" alt="Screenshot (215)" src="https://github.com/user-attachments/assets/beb1a7f5-68e8-4cce-9e2d-b624875df578" />
-
-<img width="1920" height="1080" alt="Screenshot (216)" src="https://github.com/user-attachments/assets/085a11d5-0493-46a6-ae07-be91ead2a8b9" />
-
-
-
-<img width="1294" height="890" alt="Screenshot 2026-03-02 000023" src="https://github.com/user-attachments/assets/0fcb85ee-f34b-4b37-84e9-8da59147435f" />
-
+This project is built as a practical solution to improve hospital workflow management in a simple and efficient way.
