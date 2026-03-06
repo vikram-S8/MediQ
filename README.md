@@ -1,4 +1,4 @@
-MediFlow
+MediQ
 
 Inter-Department Workflow Automation System
 
