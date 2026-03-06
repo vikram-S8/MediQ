@@ -1,4 +1,4 @@
-MediFlow
+MediQ
 
 Inter-Department Workflow Automation System
 
@@ -10,17 +10,147 @@ In many hospitals, requests like consultations, lab tests, or surgeries are hand
 
 ⚙️ How This Project Works
 
-A patient creates a request
+1️⃣ User Authentication
 
-The request goes to Doctor
+The system begins with user authentication.
 
-Then moves to Admin → Billing → Operation Theatre
+Each hospital staff member logs in using their credentials. Authentication is handled using JWT (JSON Web Tokens).
 
-Each department processes and forwards it
+Users are assigned roles such as:
 
-Finally, the request is completed
+Patient
 
-Everything is tracked in the system.
+Doctor
+
+Admin
+
+Billing
+
+Operation Theatre (OT)
+
+These roles determine which dashboard and permissions the user receives.
+
+2️⃣ Patient Creates a Request
+
+The workflow starts when a patient submits a medical request.
+
+Examples of requests include:
+
+Consultation
+
+Surgery
+
+Lab Test
+
+Medical Procedure
+
+The request is stored in the MongoDB database with an initial stage assigned to the Doctor department.
+
+Example database record:
+
+{
+  "patientName": "Rahul",
+  "requestType": "Surgery",
+  "stage": "Doctor",
+  "status": "Pending"
+}
+3️⃣ Doctor Reviews the Request
+
+The Doctor dashboard displays all requests assigned to the Doctor stage.
+
+The doctor can:
+
+Review patient details
+
+Approve the request
+
+Forward the request to the Admin department
+
+Once approved, the system automatically updates the request stage.
+
+Doctor → Admin
+4️⃣ Admin Verifies the Request
+
+The Admin department verifies the request.
+
+This may include:
+
+Checking patient records
+
+Confirming hospital availability
+
+Validating documentation
+
+After verification, the admin forwards the request to the Billing department.
+
+Admin → Billing
+5️⃣ Billing Processes Payment
+
+The Billing department handles financial processing.
+
+Tasks include:
+
+Generating invoices
+
+Confirming payments
+
+Updating billing status
+
+Once payment is processed, the request is forwarded to the Operation Theatre (OT).
+
+Billing → OT
+6️⃣ Operation Theatre Completes the Request
+
+The Operation Theatre department handles the final stage of the workflow.
+
+Responsibilities include:
+
+Scheduling operations
+
+Performing medical procedures
+
+Updating completion status
+
+After the procedure is completed, the request status is updated to:
+
+Completed
+7️⃣ Workflow Tracking
+
+Every request contains a stage field that indicates its current department.
+
+Example stages:
+
+Doctor
+Admin
+Billing
+OT
+Completed
+
+This allows the system to:
+
+Track request progress
+
+Display requests in department dashboards
+
+Maintain workflow transparency
+
+8️⃣ Role-Based Dashboards
+
+Each user sees only the requests relevant to their role.
+
+Role	Responsibility
+Patient	Create and track requests
+Doctor	Review and approve requests
+Admin	Verify and authorize requests
+Billing	Process payments
+OT	Complete the operation
+
+This ensures secure and organized workflow management.
+
+🔁 Complete Workflow
+Patient → Doctor → Admin → Billing → Operation Theatre → Completed
+
+Each department processes the request and moves
 
 🛠️ Setup Instructions (Important)
 1. Extract the Project
@@ -165,6 +295,20 @@ Workflow automation
 Secure login system
 
 Simple and scalable
+
+📈 The system can be extended with advanced features such as:
+
+Real-time notifications between departments
+
+Drag-and-drop workflow board (Kanban style)
+
+AI-based patient prioritization
+
+Hospital analytics dashboard
+
+Appointment scheduling system
+
+Integration with Electronic Health Records (EHR)
 
 ⚠️ Notes
 
